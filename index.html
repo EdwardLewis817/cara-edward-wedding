@@ -1405,61 +1405,48 @@
       <h2>RSVP</h2>
       <div class="rule"></div>
     </div>
-    <p class="rsvp-deadline reveal">Kindly reply by 1st May 2027</p>
 
-    <div class="rsvp-form reveal" id="rsvp-form-container">
-      <div class="form-row">
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" placeholder="Your first name" id="f-firstname">
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" placeholder="Your last name" id="f-lastname">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" placeholder="your@email.com" id="f-email">
-      </div>
-      <div class="form-group">
-        <label>Will you be attending?</label>
-        <div class="rsvp-attending">
-          <button class="attend-btn active" id="btn-yes" onclick="setAttending(true)">Joyfully accepts</button>
-          <button class="attend-btn" id="btn-no" onclick="setAttending(false)">Regretfully declines</button>
-        </div>
-      </div>
-      <div id="attending-fields">
-        <div class="form-group">
-          <label>Number of guests (including yourself)</label>
-          <select id="f-guests">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Dietary requirements or allergies</label>
-          <textarea placeholder="Please list any dietary requirements or allergies for all guests..." id="f-dietary"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Song request for the dance floor</label>
-          <input type="text" placeholder="The one song that will get you dancing..." id="f-song">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>A message for Cara &amp; Edward</label>
-        <textarea placeholder="We'd love to hear from you..." id="f-message"></textarea>
-      </div>
-      <button class="btn-submit" onclick="submitRSVP()">Send our RSVP</button>
-      <p class="form-note">Having trouble with the form? Email us at <span style="color: var(--gold);">edwardandcarawedding@gmail.com</span></p>
+    <!-- Loading -->
+    <div id="rsvp-loading" style="text-align:center; padding: 2rem 0;">
+      <p style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted);">Loading your invitation...</p>
     </div>
 
-    <div class="rsvp-success" id="rsvp-success">
-      <div class="rule" style="margin: 0 auto 1.5rem;"></div>
-      <h3>Thank you so much</h3>
-      <p>We can't wait to celebrate with you.</p>
-      <div class="rule" style="margin: 1.5rem auto 0;"></div>
+    <!-- Not found / no ID -->
+    <div id="rsvp-noid" style="display:none; text-align:center; max-width: 520px; margin: 0 auto;">
+      <p style="font-family: var(--body); font-style: italic; color: var(--muted); margin-bottom: 1rem;">Please use the personal link or QR code from your invitation to RSVP. If you're having trouble, get in touch with us directly.</p>
+      <p style="font-family: var(--serif); font-size: 0.88rem; letter-spacing: 0.1em; color: var(--gold);">edwardandcarawedding@gmail.com</p>
     </div>
+
+    <!-- RSVP Form -->
+    <div id="rsvp-form-wrap" style="display:none; max-width: 580px; margin: 0 auto;">
+
+      <div style="text-align:center; margin-bottom: 2rem;">
+        <h3 id="rsvp-household-title" style="font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--white); margin-bottom: 0.3rem;"></h3>
+        <p style="font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.95rem;">Please confirm attendance for each person in your party</p>
+        <p style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-top: 0.75rem;">Kindly reply by 1st May 2027</p>
+      </div>
+
+      <div id="rsvp-guests-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;"></div>
+
+      <div style="border-top: 1px solid rgba(201,169,110,0.1); padding-top: 1.5rem; margin-bottom: 1.5rem;">
+        <label style="display:block; font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem;">A message for Cara &amp; Edward (optional)</label>
+        <textarea id="rsvp-shared-message" placeholder="We'd love to hear from you..." style="width:100%; background: var(--dark); border: 1px solid rgba(201,169,110,0.15); color: var(--cream); font-family: var(--body); font-size: 1rem; padding: 0.7rem 0.9rem; outline: none; resize: vertical; min-height: 80px; transition: border-color 0.3s;"></textarea>
+      </div>
+
+      <button class="btn-submit" id="rsvp-submit-btn" onclick="submitHouseholdRSVP()">Send our RSVP</button>
+      <p class="form-note" style="margin-top: 1rem;">Having trouble? Email <span style="color: var(--gold);">edwardandcarawedding@gmail.com</span></p>
+    </div>
+
+    <!-- Success -->
+    <div id="rsvp-success-wrap" style="display:none; text-align:center; max-width: 520px; margin: 0 auto; padding: 1rem 0;">
+      <div class="rule"></div>
+      <h3 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 300; color: var(--white); margin: 1rem 0 0.4rem;">Thank <em style="font-style:italic; color: var(--gold);">you</em></h3>
+      <p style="font-family: var(--body); font-style: italic; color: var(--muted); margin-bottom: 0.3rem;">We've received your RSVP and can't wait to celebrate with you.</p>
+      <p style="font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.85rem;">— Cara &amp; Edward</p>
+      <div id="rsvp-success-summary" style="background: var(--dark); border: 1px solid rgba(201,169,110,0.12); padding: 1.5rem; margin: 2rem 0; text-align: left;"></div>
+      <div class="rule"></div>
+    </div>
+
   </div>
 </section>
 
@@ -1473,7 +1460,7 @@
 </footer>
 
 <script>
-  // Sprocket holes
+  // ---- Sprocket holes ----
   function makeSprockets(id) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -1487,7 +1474,7 @@
   makeSprockets('spr-left');
   makeSprockets('spr-right');
 
-  // Countdown
+  // ---- Countdown ----
   function updateCountdown() {
     const target = new Date('2027-08-07T14:00:00');
     const now = new Date();
@@ -1498,27 +1485,20 @@
       document.getElementById('cd-mins').textContent = '0';
       return;
     }
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    document.getElementById('cd-days').textContent = days.toLocaleString();
-    document.getElementById('cd-hours').textContent = hours;
-    document.getElementById('cd-mins').textContent = mins;
+    document.getElementById('cd-days').textContent = Math.floor(diff / (1000*60*60*24)).toLocaleString();
+    document.getElementById('cd-hours').textContent = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    document.getElementById('cd-mins').textContent = Math.floor((diff % (1000*60*60)) / (1000*60));
   }
   updateCountdown();
   setInterval(updateCountdown, 30000);
 
-  // Scroll reveal
+  // ---- Scroll reveal ----
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-      }
-    });
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // FAQ accordion
+  // ---- FAQ accordion ----
   document.querySelectorAll('.faq-question').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = btn.parentElement;
@@ -1528,42 +1508,218 @@
     });
   });
 
-  // RSVP attending toggle
-  let attending = true;
-  function setAttending(val) {
-    attending = val;
-    document.getElementById('btn-yes').classList.toggle('active', val);
-    document.getElementById('btn-no').classList.toggle('active', !val);
-    document.getElementById('attending-fields').style.display = val ? 'block' : 'none';
-  }
-
-  // RSVP submit
-  function submitRSVP() {
-    const first = document.getElementById('f-firstname').value.trim();
-    const last = document.getElementById('f-lastname').value.trim();
-    const email = document.getElementById('f-email').value.trim();
-    if (!first || !last || !email) {
-      alert('Please fill in your name and email address.');
-      return;
-    }
-    document.getElementById('rsvp-form-container').style.display = 'none';
-    document.getElementById('rsvp-success').style.display = 'block';
-  }
-
-  // Smooth nav highlight
+  // ---- Nav highlight ----
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-links a');
   window.addEventListener('scroll', () => {
     let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id');
-    });
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
     navLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current
-        ? 'var(--gold)'
-        : 'var(--cream-dim)';
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--gold)' : 'var(--cream-dim)';
     });
   });
+
+  // ============================================================
+  // HOUSEHOLD RSVP SYSTEM
+  // ============================================================
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEByzUeZ067BmFBccl827dqVbNELZSGQeVvO4-bzXCtpGK3bSbIKmPcBvyaEyfkE6Jlg/exec';
+
+  const HOUSEHOLDS = {
+    'mel-steve':    { name: 'Mum & Dad',      guests: ['Mel Lewis', 'Steve Lewis'] },
+    'chris-louise': { name: 'Chris & Louise',  guests: ['Chris Lewis', 'Louise Lewis'] },
+    'harry-evie':   { name: 'Harry & Evie',    guests: ['Harry Lewis', 'Evie Foster'] },
+    'mama-baba':    { name: 'Mama & Baba',     guests: ['Nadia Ma\'ayta', 'Ossama Aghabi'] },
+    'dana-shaun':   { name: 'Dana & Shaun',    guests: ['Dana Aghabi', 'Shaun McVean'] }
+  };
+
+  // Food options — set to null until menu confirmed
+  const FOOD_OPTIONS = null;
+
+  let householdId = null;
+  let household = null;
+  let guestStates = {};
+
+  // Initialise RSVP on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    householdId = params.get('id');
+
+    document.getElementById('rsvp-loading').style.display = 'none';
+
+    if (!householdId || !HOUSEHOLDS[householdId]) {
+      document.getElementById('rsvp-noid').style.display = 'block';
+      return;
+    }
+
+    household = HOUSEHOLDS[householdId];
+    household.guests.forEach(name => {
+      guestStates[name] = { attending: null, dietary: '', starter: '', main: '', dessert: '' };
+    });
+
+    document.getElementById('rsvp-household-title').textContent = household.name;
+    buildGuestCards();
+    document.getElementById('rsvp-form-wrap').style.display = 'block';
+
+    // Scroll to RSVP if ?id= is present
+    setTimeout(() => {
+      document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+  });
+
+  function buildGuestCards() {
+    const list = document.getElementById('rsvp-guests-list');
+    list.innerHTML = '';
+    household.guests.forEach(name => {
+      const slug = slugify(name);
+      const card = document.createElement('div');
+      card.id = `rsvp-card-${slug}`;
+      card.style.cssText = 'background: var(--dark); border: 1px solid rgba(201,169,110,0.12); padding: 1.4rem 1.5rem; transition: border-color 0.3s;';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+          <span style="font-family: var(--serif); font-size: 1.2rem; color: var(--white);">${name}</span>
+          <div style="display:flex; gap: 0.5rem;">
+            <button id="rsvp-yes-${slug}" onclick="rsvpSetAttending('${name}', true)"
+              style="padding: 0.4rem 1rem; border: 1px solid rgba(201,169,110,0.2); background: transparent; font-family: var(--serif); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; color: var(--cream-dim);">
+              Attending
+            </button>
+            <button id="rsvp-no-${slug}" onclick="rsvpSetAttending('${name}', false)"
+              style="padding: 0.4rem 1rem; border: 1px solid rgba(201,169,110,0.2); background: transparent; font-family: var(--serif); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; color: var(--cream-dim);">
+              Regrets
+            </button>
+          </div>
+        </div>
+        <div id="rsvp-details-${slug}" style="display:none; margin-top: 1rem; border-top: 1px solid rgba(201,169,110,0.08); padding-top: 1rem;">
+          ${FOOD_OPTIONS ? buildFoodSelects(name) : ''}
+          <div>
+            <label style="display:block; font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem;">Dietary requirements or allergies</label>
+            <input type="text" placeholder="e.g. vegetarian, nut allergy..."
+              id="rsvp-dietary-${slug}"
+              oninput="guestStates['${name}'].dietary = this.value"
+              style="width:100%; background: var(--dark-mid); border: 1px solid rgba(201,169,110,0.15); color: var(--cream); font-family: var(--body); font-size: 1rem; padding: 0.6rem 0.9rem; outline: none;">
+          </div>
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+
+  function buildFoodSelects(name) {
+    if (!FOOD_OPTIONS) return '';
+    const slug = slugify(name);
+    let html = '';
+    ['starter', 'main', 'dessert'].forEach(course => {
+      if (!FOOD_OPTIONS[course]) return;
+      html += `<div style="margin-bottom: 0.8rem;">
+        <label style="display:block; font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem;">${course.charAt(0).toUpperCase() + course.slice(1)}</label>
+        <select id="rsvp-${course}-${slug}" onchange="guestStates['${name}'].${course} = this.value"
+          style="width:100%; background: var(--dark-mid); border: 1px solid rgba(201,169,110,0.15); color: var(--cream); font-family: var(--body); font-size: 1rem; padding: 0.6rem 0.9rem; outline: none; -webkit-appearance: none;">
+          <option value="">Please choose...</option>
+          ${FOOD_OPTIONS[course].map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+      </div>`;
+    });
+    return html;
+  }
+
+  function rsvpSetAttending(name, attending) {
+    guestStates[name].attending = attending;
+    const slug = slugify(name);
+    const card = document.getElementById(`rsvp-card-${slug}`);
+    const details = document.getElementById(`rsvp-details-${slug}`);
+    const yesBtn = document.getElementById(`rsvp-yes-${slug}`);
+    const noBtn = document.getElementById(`rsvp-no-${slug}`);
+
+    // Reset both buttons
+    [yesBtn, noBtn].forEach(b => {
+      b.style.background = 'transparent';
+      b.style.borderColor = 'rgba(201,169,110,0.2)';
+      b.style.color = 'var(--cream-dim)';
+    });
+
+    if (attending) {
+      yesBtn.style.background = 'rgba(74,124,89,0.2)';
+      yesBtn.style.borderColor = '#4a7c59';
+      yesBtn.style.color = '#8fc9a0';
+      card.style.borderColor = 'rgba(74,124,89,0.3)';
+      details.style.display = 'block';
+    } else {
+      noBtn.style.background = 'rgba(124,74,74,0.2)';
+      noBtn.style.borderColor = '#7c4a4a';
+      noBtn.style.color = '#c98f8f';
+      card.style.borderColor = 'rgba(124,74,74,0.2)';
+      details.style.display = 'none';
+      guestStates[name].dietary = '';
+    }
+  }
+
+  async function submitHouseholdRSVP() {
+    const unresponded = household.guests.filter(n => guestStates[n].attending === null);
+    if (unresponded.length > 0) {
+      alert(`Please confirm attendance for: ${unresponded.join(', ')}`);
+      return;
+    }
+
+    const btn = document.getElementById('rsvp-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const payload = {
+      householdId,
+      householdName: household.name,
+      submittedAt: new Date().toISOString(),
+      message: document.getElementById('rsvp-shared-message').value,
+      guests: household.guests.map(name => ({
+        name,
+        attending: guestStates[name].attending,
+        dietary: guestStates[name].dietary,
+        starter: guestStates[name].starter,
+        main: guestStates[name].main,
+        dessert: guestStates[name].dessert
+      }))
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      showRSVPSuccess(payload);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Send our RSVP';
+      alert('Something went wrong — please try again or email edwardandcarawedding@gmail.com');
+    }
+  }
+
+  function showRSVPSuccess(payload) {
+    document.getElementById('rsvp-form-wrap').style.display = 'none';
+    let html = '<p style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem;">Your Response</p>';
+    payload.guests.forEach(g => {
+      const color = g.attending ? '#8fc9a0' : '#c98f8f';
+      const label = g.attending ? 'Attending ✓' : 'Unable to attend';
+      html += `<div style="display:flex; justify-content:space-between; font-family: var(--body); font-size: 0.92rem; color: var(--cream-dim); padding: 0.35rem 0; border-bottom: 1px solid rgba(201,169,110,0.06);">
+        <span>${g.name}</span><span style="color:${color}">${label}</span>
+      </div>`;
+      if (g.attending && g.dietary) {
+        html += `<div style="display:flex; justify-content:space-between; font-family: var(--body); font-size: 0.85rem; font-style:italic; color: var(--muted); padding: 0.2rem 0 0.35rem; border-bottom: 1px solid rgba(201,169,110,0.06);">
+          <span style="padding-left:1rem;">Dietary</span><span>${g.dietary}</span>
+        </div>`;
+      }
+    });
+    if (payload.message) {
+      html += `<div style="padding-top: 0.75rem; font-family: var(--body); font-size: 0.85rem; font-style:italic; color: var(--muted);">
+        <span style="display:block; font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem;">Your message</span>
+        ${payload.message}
+      </div>`;
+    }
+    document.getElementById('rsvp-success-summary').innerHTML = html;
+    document.getElementById('rsvp-success-wrap').style.display = 'block';
+  }
+
+  function slugify(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  }
 </script>
 
 </body>
