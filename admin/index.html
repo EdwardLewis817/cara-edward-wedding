@@ -516,6 +516,8 @@
   .modal p { font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
   .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
 
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
   @media print {
     .sidebar, .page-header .btn, .qr-card-actions, nav { display: none !important; }
     .app { grid-template-columns: 1fr; }
@@ -618,6 +620,13 @@
       </button>
       <button class="nav-btn" onclick="showView('export')" id="nav-export">
         <span class="icon">◇</span> Export Code
+      </button>
+      <button class="nav-btn" onclick="showView('rsvp-status')" id="nav-rsvp-status">
+        <span class="icon">◇</span> RSVP Status
+      </button>
+      <div style="margin: 0.5rem 1.25rem; height: 1px; background: var(--border);"></div>
+      <button class="nav-btn" onclick="refreshFromSheet()" id="nav-refresh">
+        <span class="icon" id="refresh-icon">↻</span> Refresh from Sheet
       </button>
     </nav>
 
@@ -723,6 +732,20 @@
       <div style="background: var(--dark); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-top: 1rem;">
         <p style="font-family: var(--serif); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem;">Find & replace in your HTML files</p>
         <p style="font-family: var(--body); font-size: 0.85rem; color: var(--cream-dim);">Search for <code style="color: var(--gold);">const HOUSEHOLDS = {</code> and replace the entire object with the code above.</p>
+      </div>
+    </div>
+
+    <!-- ---- RSVP STATUS VIEW ---- -->
+    <div class="view" id="view-rsvp-status">
+      <div class="page-header">
+        <div>
+          <h1>RSVP <em>Status</em></h1>
+          <p>See who has responded and reset individual households</p>
+        </div>
+        <button class="btn btn-solid" onclick="loadRSVPStatus()">↻ Refresh</button>
+      </div>
+      <div id="rsvp-status-container">
+        <div style="text-align:center; padding: 3rem; font-family: var(--body); font-style: italic; color: var(--muted);">Loading RSVP status from Google Sheet...</div>
       </div>
     </div>
 
@@ -851,11 +874,116 @@ function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`view-${name}`).classList.add('active');
-  document.getElementById(`nav-${name}`).classList.add('active');
+  document.getElementById(`nav-${name}`) && document.getElementById(`nav-${name}`).classList.add('active');
 
   if (name === 'urls') renderUrls();
   if (name === 'qrcodes') renderQRCodes();
   if (name === 'export') renderExportCode();
+  if (name === 'rsvp-status') loadRSVPStatus();
+}
+
+// ============================================================
+// REFRESH FROM SHEET
+// ============================================================
+async function refreshFromSheet() {
+  const icon = document.getElementById('refresh-icon');
+  icon.style.display = 'inline-block';
+  icon.style.animation = 'spin 1s linear infinite';
+  setSyncStatus('syncing');
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getHouseholds`);
+    const data = await res.json();
+    if (data.households && data.households.length > 0) {
+      households = data.households;
+      saveLocal();
+      setSyncStatus('saved');
+      showToast('Refreshed from Google Sheet');
+      renderGuestList();
+    } else {
+      setSyncStatus('error');
+      showToast('Sheet returned no data');
+    }
+  } catch (err) {
+    setSyncStatus('error');
+    showToast('Could not reach Google Sheet');
+  }
+
+  icon.style.animation = '';
+}
+
+// ============================================================
+// RSVP STATUS VIEW
+// ============================================================
+async function loadRSVPStatus() {
+  const container = document.getElementById('rsvp-status-container');
+  container.innerHTML = `<div style="text-align:center; padding: 3rem; font-family: var(--body); font-style: italic; color: var(--muted);">Loading RSVP status from Google Sheet...</div>`;
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getRSVPStatus`);
+    const data = await res.json();
+    renderRSVPStatus(data.submitted || []);
+  } catch (err) {
+    container.innerHTML = `<div style="text-align:center; padding: 3rem; font-family: var(--body); font-style: italic; color: var(--muted);">Could not reach Google Sheet. Check your connection and try again.</div>`;
+  }
+}
+
+function renderRSVPStatus(submittedIds) {
+  const container = document.getElementById('rsvp-status-container');
+
+  const responded = households.filter(h => submittedIds.includes(h.id));
+  const pending = households.filter(h => !submittedIds.includes(h.id));
+
+  let html = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="background: var(--dark); border: 1px solid rgba(74,124,89,0.2); padding: 1.25rem; text-align: center;">
+        <span style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--green-text); display: block;">${responded.length}</span>
+        <span style="font-family: var(--serif); font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted);">Responded</span>
+      </div>
+      <div style="background: var(--dark); border: 1px solid rgba(201,169,110,0.12); padding: 1.25rem; text-align: center;">
+        <span style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--cream-dim); display: block;">${pending.length}</span>
+        <span style="font-family: var(--serif); font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted);">Pending</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border);">
+      <div style="display: grid; grid-template-columns: 1fr 120px 160px; background: var(--charcoal); padding: 0.65rem 1rem; font-family: var(--serif); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold);">
+        <div>Household</div>
+        <div>Status</div>
+        <div></div>
+      </div>`;
+
+  households.forEach(hh => {
+    const done = submittedIds.includes(hh.id);
+    const statusColor = done ? 'var(--green-text)' : 'var(--muted)';
+    const statusBg = done ? 'rgba(74,124,89,0.12)' : 'transparent';
+    const statusText = done ? 'Responded ✓' : 'Pending';
+
+    html += `
+      <div style="display: grid; grid-template-columns: 1fr 120px 160px; align-items: center; background: var(--dark); padding: 0.85rem 1rem; transition: background 0.2s;" onmouseover="this.style.background='var(--dark-mid)'" onmouseout="this.style.background='var(--dark)'">
+        <div>
+          <div style="font-family: var(--serif); font-size: 0.95rem; color: var(--white);">${hh.name}</div>
+          <div style="font-family: var(--body); font-size: 0.78rem; font-style: italic; color: var(--muted);">${hh.guests.join(', ')}</div>
+        </div>
+        <div style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.1em; color: ${statusColor}; background: ${statusBg}; padding: 0.25rem 0.6rem; display: inline-block;">${statusText}</div>
+        <div style="display: flex; justify-content: flex-end;">
+          ${done ? `<button class="btn btn-sm btn-danger" onclick="resetRSVP('${hh.id}', '${hh.name}')">Reset RSVP</button>` : ''}
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function resetRSVP(id, name) {
+  if (!confirm(`Reset RSVP for "${name}"?\n\nThis will:\n• Clear their localStorage flag on this device\n• Allow them to re-submit on any device\n\nNote: you will also need to delete their row from the RSVPs and Guests sheets in Google Sheets manually.`)) return;
+
+  // Clear localStorage flag on this device
+  localStorage.removeItem(`rsvp-submitted-${id}`);
+  showToast(`RSVP flag cleared for ${name} — also delete their row from Google Sheets`);
+
+  // Reload status
+  loadRSVPStatus();
 }
 
 // ============================================================
