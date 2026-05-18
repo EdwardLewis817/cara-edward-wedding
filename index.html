@@ -842,7 +842,7 @@
 
   .registry-message {
     max-width: 560px;
-    margin: 0 auto 3rem;
+    margin: 0 auto 2.5rem;
     font-family: var(--body);
     font-size: 1.05rem;
     font-style: italic;
@@ -850,41 +850,159 @@
     line-height: 1.9;
   }
 
-  .registry-options {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: 700px;
+  .honeymoon-card {
+    max-width: 420px;
     margin: 0 auto;
+    border: 1px solid rgba(201,169,110,0.2);
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
   }
 
-  .registry-card {
-    flex: 1;
-    min-width: 200px;
-    max-width: 280px;
-    border: 1px solid rgba(201,169,110,0.15);
-    padding: 2rem 1.5rem;
-    text-align: center;
-    transition: border-color 0.3s;
+  .honeymoon-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(201,169,110,0.04) 0%, transparent 70%);
+    pointer-events: none;
   }
 
-  .registry-card:hover { border-color: var(--gold-dim); }
+  .honeymoon-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--gold);
+  }
 
-  .registry-card h3 {
+  .honeymoon-card h3 {
     font-family: var(--serif);
-    font-size: 1.2rem;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+    line-height: 1.1;
+  }
+
+  .honeymoon-card h3 em { font-style: italic; color: var(--cream-dim); }
+
+  .honeymoon-card p {
+    font-family: var(--body);
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.8;
+    margin-bottom: 1.75rem;
+  }
+
+  /* ---- HONEYMOON MODAL ---- */
+  .hm-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .hm-modal-overlay.open { display: flex; }
+
+  .hm-modal {
+    background: var(--dark);
+    border: 1px solid rgba(201,169,110,0.25);
+    padding: 2.5rem 2rem;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    animation: fadeUp 0.35s ease both;
+  }
+
+  .hm-modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+    padding: 0.25rem;
+  }
+
+  .hm-modal-close:hover { color: var(--gold); }
+
+  .hm-modal .rule { margin: 1.25rem auto; }
+
+  .hm-modal h2 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
     font-weight: 300;
     color: var(--white);
     margin-bottom: 0.5rem;
+    line-height: 1.1;
   }
 
-  .registry-card p {
+  .hm-modal h2 em { font-style: italic; color: var(--gold); }
+
+  .hm-modal .modal-message {
     font-family: var(--body);
-    font-size: 0.88rem;
-    color: var(--muted);
-    margin-bottom: 1.2rem;
     font-style: italic;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1.75rem;
+  }
+
+  .monzo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: rgba(201,169,110,0.08);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 0.82rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 1rem;
+  }
+
+  .monzo-btn:hover {
+    background: rgba(201,169,110,0.14);
+    border-color: var(--gold);
+  }
+
+  .monzo-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ff3b6e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: white;
+    font-family: sans-serif;
+    flex-shrink: 0;
+  }
+
+  .hm-modal .modal-note {
+    font-family: var(--body);
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 0.5rem;
   }
 
   /* ---- FOOTER ---- */
@@ -1293,32 +1411,48 @@
   </div>
 </section>
 
-<!-- REGISTRY -->
+<!-- REGISTRY / HONEYMOON FUND -->
 <section id="registry">
   <div class="container">
     <div class="section-header reveal">
       <span class="label">Gifts</span>
-      <h2>Our <em>Registry</em></h2>
+      <h2>Honeymoon <em>Fund</em></h2>
       <div class="rule"></div>
     </div>
+
     <p class="registry-message reveal">
-      Your presence on our wedding day is the greatest gift of all. However, should you wish to give a gift, we would be truly grateful for contributions towards our honeymoon fund — or anything from our registry below.
+      Your presence on our wedding day truly is the greatest gift we could ask for. However, if you would like to do something extra, we would be so grateful for any contribution towards our honeymoon — our first adventure together as a married couple.
     </p>
-    <div class="registry-options reveal">
-      <div class="registry-card">
-        <h3>Honeymoon Fund</h3>
-        <p>Help us celebrate our first adventure as a married couple</p>
-        <a href="#" class="btn-ghost">Contribute</a>
-      </div>
-      <div class="registry-card">
-        <h3>Our Wishlist</h3>
-        <p>A curated selection of things we'd love for our home</p>
-        <a href="#" class="btn-ghost">View Registry</a>
-      </div>
+
+    <div class="honeymoon-card reveal">
+      <span class="honeymoon-icon">✦</span>
+      <h3>Our <em>Honeymoon</em></h3>
+      <p>Every contribution, however big or small, will go towards making our honeymoon truly unforgettable. Thank you from the bottom of our hearts.</p>
+      <button class="btn-ghost" onclick="openHoneymoonModal()">Contribute to our fund</button>
     </div>
-    <p style="font-family: var(--body); font-size: 0.85rem; font-style: italic; color: var(--muted); margin-top: 2.5rem;">No gifts on the day please — we would love to enjoy the evening with you without any logistics.</p>
+
+    <p style="font-family: var(--body); font-size: 0.85rem; font-style: italic; color: var(--muted); margin-top: 2rem;">Please no gifts on the day — we would love to enjoy every moment with you.</p>
   </div>
 </section>
+
+<!-- HONEYMOON FUND MODAL -->
+<div class="hm-modal-overlay" id="hm-modal" onclick="closeHoneymoonModal(event)">
+  <div class="hm-modal">
+    <button class="hm-modal-close" onclick="closeHoneymoonModal()">&times;</button>
+    <div class="rule"></div>
+    <h2>Contribute to our <em>Fund</em></h2>
+    <div class="rule"></div>
+    <p class="modal-message">
+      We are so touched that you would like to contribute to our honeymoon. You can send a gift quickly and easily via Monzo — no account needed, just a card or Apple/Google Pay.
+    </p>
+    <!-- MONZO LINK — replace YOUR_MONZO_LINK with your monzo.me URL once created -->
+    <a href="https://monzo.me/edwardlewis7?h=7VuqzF&account_type=personal" target="_blank" class="monzo-btn">
+      <span class="monzo-logo">M</span>
+      Send a gift via Monzo
+    </a>
+    <p class="modal-note">You'll be taken to a secure Monzo payment page. No Monzo account required.</p>
+  </div>
+</div>
 
 <!-- FAQs -->
 <section id="faqs">
@@ -1746,6 +1880,23 @@
   function slugify(str) {
     return str.toLowerCase().replace(/[^a-z0-9]/g, '-');
   }
+
+  // ---- Honeymoon fund modal ----
+  function openHoneymoonModal() {
+    document.getElementById('hm-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeHoneymoonModal(e) {
+    if (!e || e.target === document.getElementById('hm-modal') || !e.target) {
+      document.getElementById('hm-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeHoneymoonModal();
+  });
 </script>
 
 </body>
