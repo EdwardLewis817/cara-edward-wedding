@@ -618,9 +618,6 @@
       <button class="nav-btn" onclick="showView('qrcodes')" id="nav-qrcodes">
         <span class="icon">◇</span> QR Codes
       </button>
-      <button class="nav-btn" onclick="showView('export')" id="nav-export">
-        <span class="icon">◇</span> Export Code
-      </button>
       <button class="nav-btn" onclick="showView('rsvp-status')" id="nav-rsvp-status">
         <span class="icon">◇</span> RSVP Status
       </button>
@@ -711,28 +708,6 @@
         <button class="btn" onclick="window.print()">Print All</button>
       </div>
       <div class="qr-grid" id="qr-container"></div>
-    </div>
-
-    <!-- ---- EXPORT VIEW ---- -->
-    <div class="view" id="view-export">
-      <div class="page-header">
-        <div>
-          <h1>Export <em>Code</em></h1>
-          <p>Copy this into your wedding website whenever you add new guests</p>
-        </div>
-        <button class="btn btn-solid" onclick="copyExportCode()">Copy Code</button>
-      </div>
-
-      <p style="font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
-        Every time you add or edit a household here, copy the code below and replace the <code style="color: var(--gold); font-size: 0.85rem;">HOUSEHOLDS</code> constant in both <strong style="color: var(--cream-dim);">cara-edward-wedding.html</strong> and <strong style="color: var(--cream-dim);">rsvp.html</strong>.
-      </p>
-
-      <div class="code-block" id="export-code"></div>
-
-      <div style="background: var(--dark); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-top: 1rem;">
-        <p style="font-family: var(--serif); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem;">Find & replace in your HTML files</p>
-        <p style="font-family: var(--body); font-size: 0.85rem; color: var(--cream-dim);">Search for <code style="color: var(--gold);">const HOUSEHOLDS = {</code> and replace the entire object with the code above.</p>
-      </div>
     </div>
 
     <!-- ---- RSVP STATUS VIEW ---- -->
@@ -878,7 +853,6 @@ function showView(name) {
 
   if (name === 'urls') renderUrls();
   if (name === 'qrcodes') renderQRCodes();
-  if (name === 'export') renderExportCode();
   if (name === 'rsvp-status') loadRSVPStatus();
 }
 
