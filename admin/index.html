@@ -528,6 +528,1138 @@
 </head>
 <body>
 
+<!-- PASSWORD SCREEN -->
+<div id="password-screen" style="
+  min-height: 100vh;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+">
+  <div style="text-align: center; max-width: 360px; width: 100%;">
+    <span style="font-family: var(--serif); font-size: 2.2rem; font-weight: 300; color: var(--gold); letter-spacing: 0.12em; display: block; margin-bottom: 0.3rem;">C & E</span>
+    <span style="font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2.5rem;">Guest Manager · 07.08.2027</span>
+    <div style="width: 40px; height: 1px; background: var(--gold); margin: 0 auto 2.5rem;"></div>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem;">Password</label>
+      <input
+        type="password"
+        id="password-input"
+        placeholder="Enter password"
+        style="
+          width: 100%;
+          background: var(--dark);
+          border: 1px solid rgba(201,169,110,0.2);
+          color: var(--cream);
+          font-family: var(--body);
+          font-size: 1rem;
+          padding: 0.75rem 1rem;
+          outline: none;
+          text-align: center;
+          letter-spacing: 0.1em;
+          transition: border-color 0.3s;
+        "
+        autofocus
+      >
+    </div>
+    <p id="password-error" style="display: none; font-family: var(--body); font-style: italic; color: #c98f8f; font-size: 0.85rem; margin-bottom: 0.75rem;">Incorrect password — please try again.</p>
+    <button
+      onclick="checkPassword()"
+      style="
+        width: 100%;
+        padding: 0.8rem;
+        background: transparent;
+        border: 1px solid var(--gold-dim);
+        color: var(--gold);
+        font-family: var(--serif);
+        font-size: 0.72rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='rgba(201,169,110,0.08)'"
+      onmouseout="this.style.background='transparent'"
+    >Enter</button>
+  </div>
+</div>
+
+<!-- APP (hidden until password entered) -->
+<div id="app-content" class="app" style="display: none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">C & E</span>
+      <span class="sidebar-sub">Guest Manager · 07.08.2027</span>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stat">
+        <span class="stat-num" id="stat-households">0</span>
+        <span class="stat-label">Households</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" id="stat-guests">0</span>
+        <span class="stat-label">Guests</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" onclick="showView('guests')" id="nav-guests">
+        <span class="icon">◇</span> Guest List
+      </button>
+      <button class="nav-btn" onclick="showView('urls')" id="nav-urls">
+        <span class="icon">◇</span> Unique URLs
+      </button>
+      <button class="nav-btn" onclick="showView('qrcodes')" id="nav-qrcodes">
+        <span class="icon">◇</span> QR Codes
+      </button>
+      <button class="nav-btn" onclick="showView('export')" id="nav-export">
+        <span class="icon">◇</span> Export Code
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="base-url-wrap">
+        <label>Base URL</label>
+        <input type="text" id="base-url" value="https://cara-edward-wedding.jabal.cc" oninput="onBaseUrlChange()">
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ---- GUEST LIST VIEW ---- -->
+    <div class="view active" id="view-guests">
+      <div class="page-header">
+        <div>
+          <h1>Guest <em>List</em></h1>
+          <p>Manage households and guests</p>
+        </div>
+        <button class="btn btn-solid" onclick="showAddForm()">+ Add Household</button>
+      </div>
+
+      <!-- Add / Edit Form -->
+      <div class="form-card" id="add-form" style="display:none;">
+        <h2 id="form-title">Add New Household</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Household Name</label>
+            <input type="text" id="f-household-name" placeholder="e.g. The Smiths" oninput="onHouseholdNameInput()">
+            <div class="id-preview" id="id-preview"></div>
+          </div>
+          <div class="form-group">
+            <label>Custom ID (optional)</label>
+            <input type="text" id="f-household-id" placeholder="auto-generated" oninput="onIdInput()">
+            <span class="hint">Used in the URL — lowercase, hyphens only</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <label>Guests</label>
+        </div>
+
+        <div class="guest-fields" id="guest-fields"></div>
+        <button class="add-guest-btn" onclick="addGuestField()">+ Add another guest</button>
+
+        <div class="form-actions">
+          <button class="btn btn-solid" onclick="saveHousehold()" id="save-btn">Save Household</button>
+          <button class="btn" onclick="cancelForm()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Households table -->
+      <div id="households-container"></div>
+    </div>
+
+    <!-- ---- URLS VIEW ---- -->
+    <div class="view" id="view-urls">
+      <div class="page-header">
+        <div>
+          <h1>Unique <em>URLs</em></h1>
+          <p>Personal RSVP links for each household</p>
+        </div>
+        <button class="btn" onclick="copyAllUrls()">Copy All URLs</button>
+      </div>
+      <div id="urls-container"></div>
+    </div>
+
+    <!-- ---- QR CODES VIEW ---- -->
+    <div class="view" id="view-qrcodes">
+      <div class="page-header">
+        <div>
+          <h1>QR <em>Codes</em></h1>
+          <p>Download or print QR codes for each household</p>
+        </div>
+        <button class="btn" onclick="window.print()">Print All</button>
+      </div>
+      <div class="qr-grid" id="qr-container"></div>
+    </div>
+
+    <!-- ---- EXPORT VIEW ---- -->
+    <div class="view" id="view-export">
+      <div class="page-header">
+        <div>
+          <h1>Export <em>Code</em></h1>
+          <p>Copy this into your wedding website whenever you add new guests</p>
+        </div>
+        <button class="btn btn-solid" onclick="copyExportCode()">Copy Code</button>
+      </div>
+
+      <p style="font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+        Every time you add or edit a household here, copy the code below and replace the <code style="color: var(--gold); font-size: 0.85rem;">HOUSEHOLDS</code> constant in both <strong style="color: var(--cream-dim);">cara-edward-wedding.html</strong> and <strong style="color: var(--cream-dim);">rsvp.html</strong>.
+      </p>
+
+      <div class="code-block" id="export-code"></div>
+
+      <div style="background: var(--dark); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-top: 1rem;">
+        <p style="font-family: var(--serif); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem;">Find & replace in your HTML files</p>
+        <p style="font-family: var(--body); font-size: 0.85rem; color: var(--cream-dim);">Search for <code style="color: var(--gold);">const HOUSEHOLDS = {</code> and replace the entire object with the code above.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</div><!-- end app-content -->
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h2>Remove household?</h2>
+    <p id="delete-modal-text">This will remove the household and all associated guests.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="confirmDelete()">Remove</button>
+      <button class="btn" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA — pre-loaded with your current guest list
+// ============================================================
+let households = [
+  { id: 'mel-steve',    name: 'Mum & Dad',      guests: ['Mel Lewis', 'Steve Lewis'] },
+  { id: 'chris-louise', name: 'Chris & Louise',  guests: ['Chris Lewis', 'Louise Lewis'] },
+  { id: 'harry-evie',   name: 'Harry & Evie',    guests: ['Harry Lewis', 'Evie Foster'] },
+  { id: 'mama-baba',    name: 'Mama & Baba',     guests: ['Nadia Ma\'ayta', 'Ossama Aghabi'] },
+  { id: 'dana-shaun',   name: 'Dana & Shaun',    guests: ['Dana Aghabi', 'Shaun McVean'] }
+];
+
+// Save to localStorage so data persists between sessions
+function save() {
+  localStorage.setItem('ce-wedding-guests', JSON.stringify(households));
+}
+
+function load() {
+  const stored = localStorage.getItem('ce-wedding-guests');
+  if (stored) {
+    try { households = JSON.parse(stored); } catch(e) {}
+  }
+}
+
+load();
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.getElementById(`nav-${name}`).classList.add('active');
+
+  if (name === 'urls') renderUrls();
+  if (name === 'qrcodes') renderQRCodes();
+  if (name === 'export') renderExportCode();
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('stat-households').textContent = households.length;
+  document.getElementById('stat-guests').textContent = households.reduce((a, h) => a + h.guests.length, 0);
+}
+
+// ============================================================
+// GUEST LIST VIEW
+// ============================================================
+function renderGuestList() {
+  updateStats();
+  const container = document.getElementById('households-container');
+
+  if (households.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>No households added yet. Add your first household to get started.</p>
+        <button class="btn btn-solid" onclick="showAddForm()">+ Add Household</button>
+      </div>`;
+    return;
+  }
+
+  let html = `<div class="households-grid">
+    <div class="hh-row header">
+      <div>Household</div>
+      <div>Guests</div>
+      <div style="text-align:center;">Count</div>
+      <div></div>
+    </div>`;
+
+  households.forEach((hh, i) => {
+    html += `
+    <div class="hh-row">
+      <div>
+        <div class="hh-name">${hh.name}</div>
+        <div style="font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-top: 1px;">${hh.id}</div>
+      </div>
+      <div class="hh-guests">${hh.guests.join(', ')}</div>
+      <div class="hh-count">${hh.guests.length}</div>
+      <div class="hh-actions">
+        <button class="btn btn-sm" onclick="editHousehold(${i})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteHousehold(${i})">✕</button>
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ============================================================
+// ADD / EDIT FORM
+// ============================================================
+let editIndex = -1;
+let idManuallySet = false;
+
+function showAddForm() {
+  editIndex = -1;
+  idManuallySet = false;
+  document.getElementById('form-title').textContent = 'Add New Household';
+  document.getElementById('f-household-name').value = '';
+  document.getElementById('f-household-id').value = '';
+  document.getElementById('id-preview').innerHTML = '';
+  document.getElementById('save-btn').textContent = 'Save Household';
+  resetGuestFields(['', '']);
+  document.getElementById('add-form').style.display = 'block';
+  document.getElementById('f-household-name').focus();
+  document.getElementById('add-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function editHousehold(i) {
+  editIndex = i;
+  idManuallySet = true;
+  const hh = households[i];
+  document.getElementById('form-title').textContent = 'Edit Household';
+  document.getElementById('f-household-name').value = hh.name;
+  document.getElementById('f-household-id').value = hh.id;
+  document.getElementById('id-preview').innerHTML = `URL: <span>${getBaseUrl()}?id=${hh.id}</span>`;
+  document.getElementById('save-btn').textContent = 'Update Household';
+  resetGuestFields(hh.guests);
+  document.getElementById('add-form').style.display = 'block';
+  document.getElementById('add-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelForm() {
+  document.getElementById('add-form').style.display = 'none';
+  editIndex = -1;
+}
+
+function onHouseholdNameInput() {
+  if (!idManuallySet) {
+    const name = document.getElementById('f-household-name').value;
+    const id = autoId(name);
+    document.getElementById('f-household-id').value = id;
+    document.getElementById('id-preview').innerHTML = id
+      ? `URL: <span>${getBaseUrl()}?id=${id}</span>`
+      : '';
+  }
+}
+
+function onIdInput() {
+  idManuallySet = true;
+  const id = document.getElementById('f-household-id').value;
+  document.getElementById('id-preview').innerHTML = id
+    ? `URL: <span>${getBaseUrl()}?id=${id}</span>`
+    : '';
+}
+
+function autoId(name) {
+  return name.toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 40);
+}
+
+function resetGuestFields(guests) {
+  const container = document.getElementById('guest-fields');
+  container.innerHTML = '';
+  guests.forEach(g => addGuestField(g));
+}
+
+function addGuestField(value = '') {
+  const container = document.getElementById('guest-fields');
+  const row = document.createElement('div');
+  row.className = 'guest-field-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Guest full name" value="${value}">
+    <button class="remove-guest" onclick="removeGuestField(this)" title="Remove">✕</button>`;
+  container.appendChild(row);
+}
+
+function removeGuestField(btn) {
+  const rows = document.querySelectorAll('.guest-field-row');
+  if (rows.length <= 1) { showToast('At least one guest is required'); return; }
+  btn.parentElement.remove();
+}
+
+function saveHousehold() {
+  const name = document.getElementById('f-household-name').value.trim();
+  let id = document.getElementById('f-household-id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+
+  if (!name) { showToast('Please enter a household name'); return; }
+  if (!id) id = autoId(name);
+  if (!id) { showToast('Please enter a household name or ID'); return; }
+
+  const guestInputs = document.querySelectorAll('#guest-fields .guest-field-row input');
+  const guests = Array.from(guestInputs).map(i => i.value.trim()).filter(Boolean);
+  if (guests.length === 0) { showToast('Please add at least one guest'); return; }
+
+  // Check for duplicate ID
+  const dupIdx = households.findIndex((h, i) => h.id === id && i !== editIndex);
+  if (dupIdx !== -1) { showToast('That ID is already in use — please choose a different one'); return; }
+
+  if (editIndex >= 0) {
+    households[editIndex] = { id, name, guests };
+    showToast('Household updated');
+  } else {
+    households.push({ id, name, guests });
+    showToast('Household added');
+  }
+
+  save();
+  cancelForm();
+  renderGuestList();
+}
+
+// ============================================================
+// DELETE
+// ============================================================
+let deleteIndex = -1;
+
+function deleteHousehold(i) {
+  deleteIndex = i;
+  document.getElementById('delete-modal-text').textContent =
+    `Remove "${households[i].name}" and all ${households[i].guests.length} guest(s)?`;
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function confirmDelete() {
+  if (deleteIndex >= 0) {
+    households.splice(deleteIndex, 1);
+    save();
+    renderGuestList();
+    showToast('Household removed');
+  }
+  closeDeleteModal();
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('open');
+  deleteIndex = -1;
+}
+
+// ============================================================
+// URLS VIEW
+// ============================================================
+function renderUrls() {
+  const base = getBaseUrl();
+  const container = document.getElementById('urls-container');
+
+  if (households.length === 0) {
+    container.innerHTML = '<div class="empty-state"><p>No households yet — add some guests first.</p></div>';
+    return;
+  }
+
+  let html = `<div class="url-table">
+    <div class="url-row header">
+      <div>Household</div>
+      <div>Unique URL</div>
+      <div></div>
+    </div>`;
+
+  households.forEach((hh, i) => {
+    const url = `${base}?id=${hh.id}`;
+    html += `
+    <div class="url-row">
+      <div>
+        <div class="url-household">${hh.name}</div>
+        <div style="font-family: var(--body); font-size: 0.72rem; color: var(--muted); font-style: italic;">${hh.guests.join(', ')}</div>
+      </div>
+      <div class="url-link"><a href="${url}" target="_blank">${url}</a></div>
+      <div class="url-actions">
+        <button class="copy-btn" id="copy-btn-${i}" onclick="copyUrl('${url}', ${i})">Copy</button>
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function copyUrl(url, i) {
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById(`copy-btn-${i}`);
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyAllUrls() {
+  const base = getBaseUrl();
+  const text = households.map(hh => `${hh.name}: ${base}?id=${hh.id}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('All URLs copied'));
+}
+
+// ============================================================
+// QR CODES VIEW
+// ============================================================
+function renderQRCodes() {
+  const base = getBaseUrl();
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '';
+
+  if (households.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><p>No households yet — add some guests first.</p></div>';
+    return;
+  }
+
+  households.forEach(hh => {
+    const url = `${base}?id=${hh.id}`;
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+
+    const qrWrap = document.createElement('div');
+    qrWrap.className = 'qr-code-box';
+    const qrDiv = document.createElement('div');
+    qrDiv.id = `qr-${hh.id}`;
+    qrWrap.appendChild(qrDiv);
+
+    card.innerHTML = `<h3>${hh.name}</h3><div class="qr-guests-label">${hh.guests.join(' · ')}</div>`;
+    card.appendChild(qrWrap);
+    card.innerHTML += `
+      <div class="qr-card-actions">
+        <button class="btn btn-sm" onclick="downloadQR('${hh.id}', '${hh.name}')">Download</button>
+      </div>`;
+
+    container.appendChild(card);
+
+    setTimeout(() => {
+      new QRCode(document.getElementById(`qr-${hh.id}`), {
+        text: url,
+        width: 160,
+        height: 160,
+        colorDark: '#0d0d0d',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }, 50);
+  });
+}
+
+function downloadQR(id, name) {
+  setTimeout(() => {
+    const canvas = document.querySelector(`#qr-${id} canvas`);
+    if (!canvas) { showToast('QR code not ready — please try again'); return; }
+    const link = document.createElement('a');
+    link.download = `qr-${id}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }, 100);
+}
+
+// ============================================================
+// EXPORT CODE VIEW
+// ============================================================
+function renderExportCode() {
+  const code = buildExportCode();
+  document.getElementById('export-code').innerHTML = highlightCode(code);
+}
+
+function buildExportCode() {
+  const lines = ['const HOUSEHOLDS = {'];
+  households.forEach((hh, i) => {
+    const guests = hh.guests.map(g => `'${g.replace(/'/g, "\\'")}'`).join(', ');
+    const comma = i < households.length - 1 ? ',' : '';
+    lines.push(`  '${hh.id}': { name: '${hh.name.replace(/'/g, "\\'")}', guests: [${guests}] }${comma}`);
+  });
+  lines.push('};');
+  return lines.join('\n');
+}
+
+function highlightCode(code) {
+  return code
+    .replace(/const /g, '<span class="code-highlight">const </span>')
+    .replace(/'([^']+)':/g, '<span class="code-key">\'$1\'</span>:')
+    .replace(/: '([^']+)'/g, ': <span class="code-string">\'$1\'</span>')
+    .replace(/\[([^\]]+)\]/g, '[<span class="code-string">$1</span>]');
+}
+
+function copyExportCode() {
+  navigator.clipboard.writeText(buildExportCode()).then(() => showToast('Code copied to clipboard'));
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getBaseUrl() {
+  return document.getElementById('base-url').value.trim().replace(/\/$/, '');
+}
+
+function onBaseUrlChange() {
+  // Refresh id preview if form is open
+  const id = document.getElementById('f-household-id').value;
+  if (id) {
+    document.getElementById('id-preview').innerHTML = `URL: <span>${getBaseUrl()}?id=${id}</span>`;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// PASSWORD PROTECTION
+// ============================================================
+function checkPassword() {
+  const entered = document.getElementById('password-input').value;
+  if (entered === 'Cara&Yara01!') {
+    document.getElementById('password-screen').style.display = 'none';
+    document.getElementById('app-content').style.display = 'grid';
+    renderGuestList();
+  } else {
+    document.getElementById('password-error').style.display = 'block';
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+});
+</script>
+</body>
+</html>    color: var(--cream);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ---- LAYOUT ---- */
+  .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    background: var(--dark);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    padding: 1.5rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    display: block;
+  }
+
+  .sidebar-sub {
+    font-family: var(--serif);
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .sidebar-stats {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat { text-align: center; }
+  .stat-num { font-family: var(--serif); font-size: 1.6rem; font-weight: 300; color: var(--white); display: block; line-height: 1; }
+  .stat-label { font-family: var(--serif); font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); display: block; margin-top: 3px; }
+
+  .sidebar-nav { padding: 0.75rem 0; flex: 1; }
+
+  .nav-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    text-align: left;
+    font-family: var(--serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .nav-btn:hover { color: var(--gold); background: rgba(201,169,110,0.04); }
+  .nav-btn.active { color: var(--gold); background: rgba(201,169,110,0.07); border-left: 2px solid var(--gold); }
+
+  .nav-btn .icon { font-size: 0.9rem; width: 16px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .base-url-wrap label {
+    font-family: var(--serif);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .base-url-wrap input {
+    width: 100%;
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: var(--body);
+    font-size: 0.78rem;
+    padding: 0.4rem 0.6rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .base-url-wrap input:focus { border-color: var(--gold); }
+
+  /* ---- MAIN ---- */
+  .main { padding: 2rem; overflow-y: auto; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---- PAGE HEADER ---- */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .page-header h1 em { font-style: italic; color: var(--cream-dim); }
+
+  .page-header p {
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  /* ---- BUTTONS ---- */
+  .btn {
+    font-family: var(--serif);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid var(--gold-dim);
+    background: transparent;
+    color: var(--gold);
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
+  .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.62rem; }
+  .btn-danger { border-color: rgba(124,74,74,0.4); color: var(--red-text); }
+  .btn-danger:hover { background: rgba(124,74,74,0.1); border-color: #7c4a4a; }
+  .btn-solid { background: rgba(201,169,110,0.12); }
+
+  /* ---- HOUSEHOLD TABLE ---- */
+  .households-grid { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+  .hh-row {
+    background: var(--dark);
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 80px 80px;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    transition: background 0.2s;
+  }
+
+  .hh-row:hover { background: var(--dark-mid); }
+
+  .hh-row.header {
+    background: var(--charcoal);
+    font-family: var(--serif);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .hh-name { font-family: var(--serif); font-size: 1rem; color: var(--white); }
+  .hh-guests { font-family: var(--body); font-size: 0.85rem; color: var(--cream-dim); font-style: italic; }
+  .hh-count { font-family: var(--serif); font-size: 0.85rem; color: var(--muted); text-align: center; }
+  .hh-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--dark);
+    border: 1px solid var(--border);
+  }
+
+  .empty-state p { font-family: var(--body); font-style: italic; color: var(--muted); margin-bottom: 1.5rem; }
+
+  /* ---- ADD / EDIT FORM ---- */
+  .form-card {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-card h2 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .form-group label {
+    font-family: var(--serif);
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .form-group input, .form-group select {
+    background: var(--dark-mid);
+    border: 1px solid var(--border);
+    color: var(--cream);
+    font-family: var(--body);
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+  .form-group input::placeholder { color: var(--muted); font-style: italic; }
+
+  .form-group .hint {
+    font-family: var(--body);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .id-preview {
+    font-family: var(--body);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  .id-preview span { color: var(--gold); }
+
+  .form-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  .guest-fields { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+
+  .guest-field-row { display: flex; gap: 0.5rem; align-items: center; }
+
+  .guest-field-row input {
+    flex: 1;
+    background: var(--dark-mid);
+    border: 1px solid var(--border);
+    color: var(--cream);
+    font-family: var(--body);
+    font-size: 0.95rem;
+    padding: 0.45rem 0.7rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .guest-field-row input:focus { border-color: var(--gold); }
+  .guest-field-row input::placeholder { color: var(--muted); font-style: italic; }
+
+  .remove-guest {
+    background: none;
+    border: 1px solid rgba(124,74,74,0.25);
+    color: var(--red-text);
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-guest:hover { background: rgba(124,74,74,0.12); }
+
+  .add-guest-btn {
+    background: none;
+    border: 1px dashed rgba(201,169,110,0.2);
+    color: var(--muted);
+    padding: 0.4rem 0.75rem;
+    font-family: var(--serif);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .add-guest-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+  /* ---- URLS VIEW ---- */
+  .url-table { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+  .url-row {
+    background: var(--dark);
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    transition: background 0.2s;
+  }
+
+  .url-row:hover { background: var(--dark-mid); }
+
+  .url-row.header {
+    background: var(--charcoal);
+    font-family: var(--serif);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0.65rem 1rem;
+  }
+
+  .url-household { font-family: var(--serif); font-size: 0.95rem; color: var(--white); }
+
+  .url-link {
+    font-family: var(--body);
+    font-size: 0.82rem;
+    color: var(--cream-dim);
+    word-break: break-all;
+  }
+
+  .url-link a { color: var(--gold); text-decoration: none; }
+  .url-link a:hover { text-decoration: underline; }
+
+  .url-actions { display: flex; gap: 0.4rem; }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: var(--serif);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .copy-btn.copied { border-color: var(--green-text); color: var(--green-text); }
+
+  /* ---- QR VIEW ---- */
+  .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+
+  .qr-card {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .qr-card:hover { border-color: var(--border-hover); }
+
+  .qr-card h3 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--white);
+    margin-bottom: 0.2rem;
+  }
+
+  .qr-guests-label {
+    font-family: var(--body);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .qr-code-box {
+    background: white;
+    display: inline-block;
+    padding: 10px;
+    margin-bottom: 0.9rem;
+  }
+
+  .qr-card-actions { display: flex; gap: 0.4rem; justify-content: center; }
+
+  /* ---- EXPORT CODE ---- */
+  .code-block {
+    background: var(--dark-mid);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: var(--cream-dim);
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+    margin-bottom: 1rem;
+  }
+
+  .code-highlight { color: var(--gold); }
+  .code-string { color: #a8c4a2; }
+  .code-key { color: #c8b4e8; }
+
+  /* ---- TOAST ---- */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--charcoal);
+    border: 1px solid var(--border-hover);
+    color: var(--cream);
+    font-family: var(--serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    padding: 0.6rem 1.2rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---- MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--dark);
+    border: 1px solid var(--border-hover);
+    padding: 2rem;
+    max-width: 480px;
+    width: 90%;
+  }
+
+  .modal h2 { font-family: var(--serif); font-size: 1.2rem; font-weight: 300; color: var(--white); margin-bottom: 0.5rem; }
+  .modal p { font-family: var(--body); font-style: italic; color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+  @media print {
+    .sidebar, .page-header .btn, .qr-card-actions, nav { display: none !important; }
+    .app { grid-template-columns: 1fr; }
+    .main { padding: 0; }
+    .qr-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .qr-card { border: 1px solid #ccc; background: white; break-inside: avoid; }
+    .qr-card h3, .qr-guests-label { color: black; }
+  }
+</style>
+</head>
+<body>
+
 <div class="app">
 
   <!-- SIDEBAR -->
