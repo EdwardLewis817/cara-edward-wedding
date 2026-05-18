@@ -1524,13 +1524,15 @@
   // ============================================================
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEByzUeZ067BmFBccl827dqVbNELZSGQeVvO4-bzXCtpGK3bSbIKmPcBvyaEyfkE6Jlg/exec';
 
-  const HOUSEHOLDS = {
+  const FALLBACK_HOUSEHOLDS = {
     'mel-steve':    { name: 'Mum & Dad',      guests: ['Mel Lewis', 'Steve Lewis'] },
     'chris-louise': { name: 'Chris & Louise',  guests: ['Chris Lewis', 'Louise Lewis'] },
     'harry-evie':   { name: 'Harry & Evie',    guests: ['Harry Lewis', 'Evie Foster'] },
     'mama-baba':    { name: 'Mama & Baba',     guests: ['Nadia Ma\'ayta', 'Ossama Aghabi'] },
     'dana-shaun':   { name: 'Dana & Shaun',    guests: ['Dana Aghabi', 'Shaun McVean'] }
   };
+
+  let HOUSEHOLDS = {};
 
   // Food options — set to null until menu confirmed
   const FOOD_OPTIONS = null;
@@ -1539,8 +1541,26 @@
   let household = null;
   let guestStates = {};
 
-  // Initialise RSVP on page load
-  window.addEventListener('DOMContentLoaded', () => {
+  // Load households from Google Sheet then init
+  async function loadHouseholds() {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=getHouseholds`);
+      const data = await res.json();
+      if (data.households && data.households.length > 0) {
+        HOUSEHOLDS = {};
+        data.households.forEach(hh => {
+          HOUSEHOLDS[hh.id] = { name: hh.name, guests: hh.guests };
+        });
+      } else {
+        HOUSEHOLDS = FALLBACK_HOUSEHOLDS;
+      }
+    } catch (err) {
+      HOUSEHOLDS = FALLBACK_HOUSEHOLDS;
+    }
+    initRSVP();
+  }
+
+  function initRSVP() {
     const params = new URLSearchParams(window.location.search);
     householdId = params.get('id');
 
@@ -1559,9 +1579,10 @@
     document.getElementById('rsvp-household-title').textContent = household.name;
     buildGuestCards();
     document.getElementById('rsvp-form-wrap').style.display = 'block';
+  }
 
-
-  });
+  // Initialise RSVP on page load
+  window.addEventListener('DOMContentLoaded', loadHouseholds);
 
   function buildGuestCards() {
     const list = document.getElementById('rsvp-guests-list');
@@ -1660,6 +1681,7 @@
     btn.textContent = 'Sending...';
 
     const payload = {
+      action: 'submitRSVP',
       householdId,
       householdName: household.name,
       submittedAt: new Date().toISOString(),
