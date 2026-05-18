@@ -1713,6 +1713,39 @@
     } catch (err) {
       HOUSEHOLDS = FALLBACK_HOUSEHOLDS;
     }
+
+    // Check if already submitted - first try localStorage (instant),
+    // then verify against the sheet (catches other devices)
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (id) {
+      const localDone = localStorage.getItem(`rsvp-submitted-${id}`);
+      if (localDone) {
+        // Already confirmed on this device — show immediately without sheet call
+        householdId = id;
+        document.getElementById('rsvp-loading').style.display = 'none';
+        showAlreadySubmitted();
+        return;
+      }
+
+      // Not confirmed locally — check the sheet in case they used another device
+      try {
+        const check = await fetch(`${SCRIPT_URL}?action=hasRSVP&householdId=${id}`);
+        const result = await check.json();
+        if (result.submitted) {
+          // Mark locally so future visits are instant
+          localStorage.setItem(`rsvp-submitted-${id}`, 'synced');
+          householdId = id;
+          document.getElementById('rsvp-loading').style.display = 'none';
+          showAlreadySubmitted();
+          return;
+        }
+      } catch (err) {
+        // Sheet check failed — proceed to form anyway
+      }
+    }
+
     initRSVP();
   }
 
@@ -1727,6 +1760,13 @@
       return;
     }
 
+    // Check if this household has already submitted
+    const alreadyDone = localStorage.getItem(`rsvp-submitted-${householdId}`);
+    if (alreadyDone) {
+      showAlreadySubmitted();
+      return;
+    }
+
     household = HOUSEHOLDS[householdId];
     household.guests.forEach(name => {
       guestStates[name] = { attending: null, dietary: '', starter: '', main: '', dessert: '' };
@@ -1735,6 +1775,16 @@
     document.getElementById('rsvp-household-title').textContent = household.name;
     buildGuestCards();
     document.getElementById('rsvp-form-wrap').style.display = 'block';
+  }
+
+  function showAlreadySubmitted() {
+    document.getElementById('rsvp-success-wrap').style.display = 'block';
+    document.getElementById('rsvp-success-summary').innerHTML = `
+      <p style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem;">Already received</p>
+      <p style="font-family: var(--body); font-style: italic; color: var(--cream-dim); font-size: 0.95rem; line-height: 1.8;">We already have your RSVP — thank you so much! If you need to make any changes, please get in touch with us directly at <span style="color: var(--gold);">edwardandcarawedding@gmail.com</span></p>
+    `;
+    // Override the thank you heading for returning visitors
+    document.querySelector('#rsvp-success-wrap h3').innerHTML = 'Already <em style="font-style:italic; color: var(--gold);">received</em>';
   }
 
   // Initialise RSVP on page load
@@ -1868,6 +1918,9 @@
   }
 
   function showRSVPSuccess(payload) {
+    // Remember that this household has submitted on this device
+    localStorage.setItem(`rsvp-submitted-${payload.householdId}`, new Date().toISOString());
+
     document.getElementById('rsvp-form-wrap').style.display = 'none';
     let html = '<p style="font-family: var(--serif); font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem;">Your Response</p>';
     payload.guests.forEach(g => {
