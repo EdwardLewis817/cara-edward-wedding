@@ -622,6 +622,10 @@
     </nav>
 
     <div class="sidebar-footer">
+      <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--serif); font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Google Sheet</span>
+        <span id="sync-status" style="font-family: var(--serif); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--muted);"></span>
+      </div>
       <div class="base-url-wrap">
         <label>Base URL</label>
         <input type="text" id="base-url" value="https://cara-edward-wedding.jabal.cc" oninput="onBaseUrlChange()">
@@ -744,29 +748,101 @@
 
 <script>
 // ============================================================
-// DATA — pre-loaded with your current guest list
+// CONFIG
 // ============================================================
-let households = [
-  { id: 'mel-steve',    name: 'Mum & Dad',      guests: ['Mel Lewis', 'Steve Lewis'] },
-  { id: 'chris-louise', name: 'Chris & Louise',  guests: ['Chris Lewis', 'Louise Lewis'] },
-  { id: 'harry-evie',   name: 'Harry & Evie',    guests: ['Harry Lewis', 'Evie Foster'] },
-  { id: 'mama-baba',    name: 'Mama & Baba',     guests: ['Nadia Ma\'ayta', 'Ossama Aghabi'] },
-  { id: 'dana-shaun',   name: 'Dana & Shaun',    guests: ['Dana Aghabi', 'Shaun McVean'] }
-];
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEByzUeZ067BmFBccl827dqVbNELZSGQeVvO4-bzXCtpGK3bSbIKmPcBvyaEyfkE6Jlg/exec';
 
-// Save to localStorage so data persists between sessions
-function save() {
+// ============================================================
+// DATA
+// ============================================================
+let households = [];
+let syncStatus = 'idle'; // idle | syncing | saved | error
+
+// ---- Local storage fallback ----
+function saveLocal() {
   localStorage.setItem('ce-wedding-guests', JSON.stringify(households));
 }
 
-function load() {
+function loadLocal() {
   const stored = localStorage.getItem('ce-wedding-guests');
   if (stored) {
     try { households = JSON.parse(stored); } catch(e) {}
   }
 }
 
-load();
+// ---- Sync to Google Sheet ----
+async function syncToSheet() {
+  setSyncStatus('syncing');
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'saveHouseholds', households })
+    });
+    saveLocal();
+    setSyncStatus('saved');
+  } catch (err) {
+    saveLocal();
+    setSyncStatus('error');
+  }
+}
+
+// ---- Load from Google Sheet ----
+async function loadFromSheet() {
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getHouseholds`);
+    const data = await res.json();
+    if (data.households && data.households.length > 0) {
+      households = data.households;
+      saveLocal();
+      setSyncStatus('saved');
+    } else {
+      // Sheet empty or first run — use local if available
+      loadLocal();
+      if (households.length === 0) {
+        // Seed with existing guests on first ever load
+        households = [
+          { id: 'mel-steve',    name: 'Mum & Dad',      guests: ['Mel Lewis', 'Steve Lewis'] },
+          { id: 'chris-louise', name: 'Chris & Louise',  guests: ['Chris Lewis', 'Louise Lewis'] },
+          { id: 'harry-evie',   name: 'Harry & Evie',    guests: ['Harry Lewis', 'Evie Foster'] },
+          { id: 'mama-baba',    name: 'Mama & Baba',     guests: ['Nadia Ma\'ayta', 'Ossama Aghabi'] },
+          { id: 'dana-shaun',   name: 'Dana & Shaun',    guests: ['Dana Aghabi', 'Shaun McVean'] }
+        ];
+        await syncToSheet();
+      }
+      setSyncStatus('saved');
+    }
+  } catch (err) {
+    // Network error — fall back to local storage
+    loadLocal();
+    setSyncStatus('error');
+    showToast('Could not reach Google Sheet — showing locally saved data');
+  }
+  renderGuestList();
+}
+
+// ---- Combined save ----
+async function save() {
+  await syncToSheet();
+}
+
+// ---- Sync status indicator ----
+function setSyncStatus(status) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const states = {
+    idle:    { text: '',               color: 'var(--muted)' },
+    syncing: { text: '↻ Syncing...',   color: 'var(--gold)' },
+    saved:   { text: '✓ Synced',       color: 'var(--green-text)' },
+    error:   { text: '⚠ Offline mode', color: '#c98f8f' }
+  };
+  const s = states[status];
+  el.textContent = s.text;
+  el.style.color = s.color;
+}
 
 // ============================================================
 // NAVIGATION
@@ -924,7 +1000,7 @@ function removeGuestField(btn) {
   btn.parentElement.remove();
 }
 
-function saveHousehold() {
+async function saveHousehold() {
   const name = document.getElementById('f-household-name').value.trim();
   let id = document.getElementById('f-household-id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
 
@@ -948,7 +1024,7 @@ function saveHousehold() {
     showToast('Household added');
   }
 
-  save();
+  await save();
   cancelForm();
   renderGuestList();
 }
@@ -965,10 +1041,10 @@ function deleteHousehold(i) {
   document.getElementById('delete-modal').classList.add('open');
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (deleteIndex >= 0) {
     households.splice(deleteIndex, 1);
-    save();
+    await save();
     renderGuestList();
     showToast('Household removed');
   }
@@ -1151,7 +1227,7 @@ function checkPassword() {
   if (entered === 'Cara&Yara01!') {
     document.getElementById('password-screen').style.display = 'none';
     document.getElementById('app-content').style.display = 'grid';
-    renderGuestList();
+    loadFromSheet();
   } else {
     document.getElementById('password-error').style.display = 'block';
     document.getElementById('password-input').value = '';
