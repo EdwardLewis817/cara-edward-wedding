@@ -1428,7 +1428,22 @@
       <span class="honeymoon-icon">✦</span>
       <h3>Our <em>Honeymoon</em></h3>
       <p>Every contribution, however big or small, will go towards making our honeymoon truly unforgettable. Thank you from the bottom of our hearts.</p>
-      <button class="btn-ghost" onclick="openHoneymoonModal()">Contribute to our fund</button>
+      <button onclick="openHoneymoonModal()" style="
+        display: inline-block;
+        font-family: var(--serif);
+        font-size: 0.78rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gold);
+        background: transparent;
+        border: 1px solid var(--gold-dim);
+        padding: 0.85rem 2.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+      " onmouseover="this.style.background='rgba(201,169,110,0.1)'; this.style.borderColor='var(--gold)'"
+         onmouseout="this.style.background='transparent'; this.style.borderColor='var(--gold-dim)'">
+        Contribute to our Fund
+      </button>
     </div>
 
     <p style="font-family: var(--body); font-size: 0.85rem; font-style: italic; color: var(--muted); margin-top: 2rem;">Please no gifts on the day — we would love to enjoy every moment with you.</p>
