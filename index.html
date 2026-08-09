@@ -803,7 +803,10 @@
     <div class="card-styled" style="margin-top: 2rem; text-align: center;">
       <h3 style="font-family: var(--font-title); font-size: 2.5rem; color: var(--burgundy); margin-bottom: 0.5rem;">Honeymoon Fund</h3>
       <p style="color: var(--text-muted); margin-bottom: 1.2rem;">Your presence at our wedding is the greatest gift of all! However, if you wish to honor us with a gift, a contribution to our honeymoon fund would be warmly appreciated.</p>
-      <button class="btn-outline" onclick="openHoneymoonModal()">View Honeymoon Fund Details</button>
+      <div style="display:flex; justify-content:center; gap: 1rem; flex-wrap:wrap;">
+        <a href="https://monzo.me/edwardlewis7?h=7VuqzF&account_type=joint" target="_blank" class="btn-primary" style="text-decoration:none;">Contribute via Monzo ↗</a>
+        <button class="btn-outline" onclick="openHoneymoonModal()">View Bank Details</button>
+      </div>
     </div>
   </div>
 </section>
@@ -973,9 +976,14 @@
   <div class="modal-card" onclick="event.stopPropagation()">
     <button onclick="closeHoneymoonModal()" style="position:absolute; top: 18px; right: 20px; background:none; border:none; font-size: 1.8rem; color: var(--burgundy); cursor:pointer;">&times;</button>
     <h3 style="font-family: var(--font-title); font-size: 3rem; color: var(--burgundy-dark); text-align:center; margin-bottom: 0.5rem;">Honeymoon Fund</h3>
-    <p style="color: var(--text-muted); text-align:center; margin-bottom: 1.5rem;">If you wish to contribute to our dream honeymoon trip, bank transfer details are below:</p>
+    <p style="color: var(--text-muted); text-align:center; margin-bottom: 1.5rem;">If you wish to contribute to our dream honeymoon, you can send gifts directly via Monzo or bank transfer:</p>
     
+    <div style="text-align:center; margin-bottom: 1.5rem;">
+      <a href="https://monzo.me/edwardlewis7?h=7VuqzF&account_type=joint" target="_blank" class="btn-primary" style="display:block; width:100%; text-decoration:none; text-align:center;">Contribute via Monzo Joint Account ↗</a>
+    </div>
+
     <div style="background: var(--bg-card); border: 1.5px dashed var(--burgundy-border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem; font-size: 1.05rem;">
+      <p style="margin-bottom: 0.4rem; font-family: var(--font-serif); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--burgundy); font-weight: 600;">Direct Bank Transfer</p>
       <p style="margin-bottom: 0.4rem;"><strong>Account Name:</strong> Edward Lewis &amp; Cara Aghabi</p>
       <p style="margin-bottom: 0.4rem;"><strong>Sort Code:</strong> 04-00-04</p>
       <p style="margin-bottom: 0.4rem;"><strong>Account No:</strong> 12345678</p>
@@ -983,7 +991,7 @@
     </div>
 
     <div style="text-align:center;">
-      <button class="btn-primary" onclick="closeHoneymoonModal()">Close</button>
+      <button class="btn-outline" onclick="closeHoneymoonModal()">Close</button>
     </div>
   </div>
 </div>
