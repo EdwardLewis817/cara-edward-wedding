@@ -350,25 +350,38 @@
   /* ---- STORY & GALLERY ---- */
   .story-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    grid-template-columns: 390px 1fr;
+    gap: 3.5rem;
     align-items: center;
+    max-width: 1040px;
+    margin: 0 auto;
   }
 
   .story-img-frame {
     background: #fff;
-    padding: 12px;
+    padding: 14px;
     border: 1.5px solid var(--burgundy-border);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(139, 58, 74, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(139, 58, 74, 0.08);
     transform: rotate(-1.5deg);
+    transition: transform 0.4s ease;
+  }
+
+  .story-img-frame:hover {
+    transform: rotate(0deg) scale(1.01);
   }
 
   .story-img-frame img {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
+    height: 530px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 10px;
     display: block;
+  }
+
+  .story-text-card {
+    padding: 2.8rem 3rem;
   }
 
   .gallery-grid {
@@ -555,13 +568,27 @@
     position: relative;
   }
 
+  @media (max-width: 960px) {
+    .story-grid {
+      grid-template-columns: 1fr;
+      max-width: 600px;
+      gap: 2.5rem;
+    }
+    .story-img-frame img {
+      height: 480px;
+    }
+    .story-text-card {
+      padding: 2.2rem 2rem;
+    }
+  }
+
   @media (max-width: 768px) {
     nav { padding: 0 1.2rem; }
     .nav-links { display: none; }
     .handwritten-names { font-size: 3.5rem; }
     .handwritten-subtitle { font-size: 1.8rem; }
     .hero-date { font-size: 2.2rem; }
-    .story-grid { grid-template-columns: 1fr; }
+    .story-img-frame img { height: 380px; }
     .section-header h2 { font-size: 3rem; }
   }
 </style>
@@ -676,7 +703,7 @@
 
 <!-- OUR STORY -->
 <section id="story">
-  <div class="container">
+  <div class="container-wide">
     <div class="section-header">
       <h2>Our Story <span class="sparkle-icon">✦</span></h2>
       <div class="rule"></div>
@@ -686,12 +713,12 @@
       <div class="story-img-frame">
         <img src="images/Story.jpg" alt="Cara & Edward">
       </div>
-      <div class="card-styled">
-        <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--burgundy-dark); margin-bottom: 1rem;">How It All Began</h3>
-        <p style="margin-bottom: 1rem; color: var(--text-primary);">Our story began under a typically grey, rain-soaked October sky at Lancaster University, where we happened to move into the very same accommodation block. What followed was a full year of classic &ldquo;will they, won&rsquo;t they&rdquo; glances in the hallways until Ed finally gathered the courage to ask Cara out on that first proper date.</p>
-        <p style="margin-bottom: 1rem; color: var(--text-primary);">The next eight years became an adventure across chapter after chapter: living with Ed&rsquo;s parents in Winchester, making a home in Newbury, putting down permanent roots in London, and countless travels back and forth to Jordan.</p>
-        <p style="margin-bottom: 1rem; color: var(--text-primary);">The biggest milestone yet came on a sea cliff in Portugal, where Ed finally asked the question&mdash;and Cara said yes.</p>
-        <p style="color: var(--text-muted); font-style: italic; margin-top: 1.2rem;">Having you all by our side to celebrate this next chapter means everything to us.</p>
+      <div class="card-styled story-text-card">
+        <h3 style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--burgundy-dark); margin-bottom: 1.2rem; line-height: 1.2;">How It All Began</h3>
+        <p style="margin-bottom: 1.05rem; color: var(--text-primary); font-size: 1.05rem; line-height: 1.85;">Our story began under a typically grey, rain-soaked October sky at Lancaster University, where we happened to move into the very same accommodation block. What followed was a full year of classic &ldquo;will they, won&rsquo;t they&rdquo; glances in the hallways until Ed finally gathered the courage to ask Cara out on that first proper date.</p>
+        <p style="margin-bottom: 1.05rem; color: var(--text-primary); font-size: 1.05rem; line-height: 1.85;">The next eight years became an adventure across chapter after chapter: living with Ed&rsquo;s parents in Winchester, making a home in Newbury, putting down permanent roots in London, and countless travels back and forth to Jordan.</p>
+        <p style="margin-bottom: 1.2rem; color: var(--text-primary); font-size: 1.05rem; line-height: 1.85;">The biggest milestone yet came on a sea cliff in Portugal, where Ed finally asked the question&mdash;and Cara said yes.</p>
+        <p style="color: var(--burgundy); font-family: var(--font-handwriting); font-size: 1.55rem; line-height: 1.4; margin-top: 0.5rem;">Having you all by our side to celebrate this next chapter means everything to us. <span class="sparkle-icon">✦</span></p>
       </div>
     </div>
 
